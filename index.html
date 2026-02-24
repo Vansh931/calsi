@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+            padding: 20px;
+        }
+
+        .calculator {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 400px;
+            transition: transform 0.3s ease;
+        }
+
+        .calculator:hover {
+            transform: translateY(-5px);
+        }
+
+        .display-container {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border-radius: 16px;
+            padding: 24px 20px;
+            margin-bottom: 24px;
+            box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .previous-operand {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1.2em;
+            text-align: right;
+            min-height: 30px;
+            word-wrap: break-word;
+            word-break: break-all;
+        }
+
+        .current-operand {
+            color: #fff;
+            font-size: 2.5em;
+            text-align: right;
+            min-height: 60px;
+            font-weight: 300;
+            word-wrap: break-word;
+            word-break: break-all;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        button {
+            padding: 24px;
+            font-size: 1.4em;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .number, .decimal {
+            background: #f8f9fa;
+            color: #2d3436;
+        }
+
+        .number:hover, .decimal:hover {
+            background: #e9ecef;
+        }
+
+        .operator {
+            background: linear-gradient(145deg, #ff6b6b, #ee5a6f);
+            color: #fff;
+        }
+
+        .operator:hover {
+            background: linear-gradient(145deg, #ee5a6f, #ff6b6b);
+        }
+
+        .operator:active {
+            background: linear-gradient(145deg, #c92a2a, #e03131);
+        }
+
+        .clear {
+            background: linear-gradient(145deg, #fa5252, #e03131);
+            color: #fff;
+            grid-column: span 2;
+        }
+
+        .clear:hover {
+            background: linear-gradient(145deg, #e03131, #c92a2a);
+        }
+
+        .delete {
+            background: linear-gradient(145deg, #4dabf7, #339af0);
+            color: #fff;
+        }
+
+        .delete:hover {
+            background: linear-gradient(145deg, #339af0, #228be6);
+        }
+
+        .equals {
+            background: linear-gradient(145deg, #51cf66, #37b24d);
+            color: #fff;
+            grid-column: span 1;
+        }
+
+        .equals:hover {
+            background: linear-gradient(145deg, #37b24d, #2f9e44);
+            
+        }
+
+        .zero {
+            grid-column: span 2;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .calculator {
+                padding: 20px;
+                max-width: 100%;
+                border-radius: 20px;
+            }
+
+            .display-container {
+                padding: 20px 16px;
+                margin-bottom: 20px;
+            }
+
+            .current-operand {
+                font-size: 2em;
+                min-height: 50px;
+            }
+
+            .previous-operand {
+                font-size: 1em;
+                min-height: 24px;
+            }
+
+            button {
+                padding: 20px;
+                font-size: 1.2em;
+                border-radius: 12px;
+            }
+
+            .buttons {
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .calculator {
+                padding: 16px;
+            }
+
+            button {
+                padding: 16px;
+                font-size: 1.1em;
+            }
+
+            .current-operand {
+                font-size: 1.8em;
+            }
+
+            .buttons {
+                gap: 8px;
+            }
+        }
+
+        /* Tablet and larger screens */
+        @media (min-width: 768px) {
+            .calculator {
+                max-width: 420px;
+            }
+
+            button {
+                padding: 28px;
+                font-size: 1.5em;
+            }
+
+            .current-operand {
+                font-size: 2.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display-container">
+            <div class="previous-operand" id="previous-operand"></div>
+            <div class="current-operand" id="current-operand">0</div>
+        </div>
+        <div class="buttons">
+            <button class="clear" onclick="clearDisplay()">AC</button>
+            <button class="delete" onclick="deleteChar()">DEL</button>
+            <button class="operator" onclick="chooseOperation('/')">÷</button>
+            
+            <button class="number" onclick="appendNumber('7')">7</button>
+            <button class="number" onclick="appendNumber('8')">8</button>
+            <button class="number" onclick="appendNumber('9')">9</button>
+            <button class="operator" onclick="chooseOperation('*')">×</button>
+            
+            <button class="number" onclick="appendNumber('4')">4</button>
+            <button class="number" onclick="appendNumber('5')">5</button>
+            <button class="number" onclick="appendNumber('6')">6</button>
+            <button class="operator" onclick="chooseOperation('-')">-</button>
+            
+            <button class="number" onclick="appendNumber('1')">1</button>
+            <button class="number" onclick="appendNumber('2')">2</button>
+            <button class="number" onclick="appendNumber('3')">3</button>
+            <button class="operator" onclick="chooseOperation('+')">+</button>
+            
+            <button class="number zero" onclick="appendNumber('0')">0</button>
+            <button class="decimal" onclick="appendNumber('.')">.</button>
+            <button class="equals" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <script>
+        let currentOperand = '0';
+        let previousOperand = '';
+        let operation = null;
+
+        const currentOperandDisplay = document.getElementById('current-operand');
+        const previousOperandDisplay = document.getElementById('previous-operand');
+
+        function updateDisplay() {
+            currentOperandDisplay.textContent = currentOperand;
+            if (operation != null) {
+                previousOperandDisplay.textContent = `${previousOperand} ${getOperationSymbol(operation)}`;
+            } else {
+                previousOperandDisplay.textContent = previousOperand;
+            }
+        }
+
+        function getOperationSymbol(op) {
+            if (op === '*') return '×';
+            if (op === '/') return '÷';
+            return op;
+        }
+
+        function appendNumber(number) {
+            if (number === '.' && currentOperand.includes('.')) return;
+            if (currentOperand === '0' || currentOperand === 'Error') {
+                currentOperand = number === '.' ? '0.' : number;
+            } else {
+                currentOperand += number;
+            }
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            currentOperand = '0';
+            previousOperand = '';
+            operation = null;
+            updateDisplay();
+        }
+
+        function deleteChar() {
+            if (currentOperand === 'Error') {
+                currentOperand = '0';
+            } else if (currentOperand.length > 1) {
+                currentOperand = currentOperand.slice(0, -1);
+            } else {
+                currentOperand = '0';
+            }
+            updateDisplay();
+        }
+
+        function chooseOperation(op) {
+            if (currentOperand === 'Error') return;
+            if (previousOperand !== '') {
+                calculate();
+            }
+            operation = op;
+            previousOperand = currentOperand;
+            currentOperand = '0';
+            updateDisplay();
+        }
+
+        function calculate() {
+            if (operation == null || previousOperand === '') return;
+            
+            let computation;
+            const prev = parseFloat(previousOperand);
+            const current = parseFloat(currentOperand);
+            
+            if (isNaN(prev) || isNaN(current)) return;
+            
+            try {
+                switch (operation) {
+                    case '+':
+                        computation = prev + current;
+                        break;
+                    case '-':
+                        computation = prev - current;
+                        break;
+                    case '*':
+                        computation = prev * current;
+                        break;
+                    case '/':
+                        if (current === 0) {
+                            currentOperand = 'Error';
+                            previousOperand = '';
+                            operation = null;
+                            updateDisplay();
+                            return;
+                        }
+                        computation = prev / current;
+                        break;
+                    default:
+                        return;
+                }
+                
+                // Round to 10 decimal places to avoid floating point errors
+                currentOperand = Math.round(computation * 10000000000) / 10000000000 + '';
+                operation = null;
+                previousOperand = '';
+            } catch (error) {
+                currentOperand = 'Error';
+                previousOperand = '';
+                operation = null;
+            }
+            updateDisplay();
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', function(event) {
+            if (event.key >= '0' && event.key <= '9') {
+                appendNumber(event.key);
+            } else if (event.key === '.') {
+                appendNumber('.');
+            } else if (event.key === '+' || event.key === '-' || event.key === '*' || event.key === '/') {
+                chooseOperation(event.key);
+            } else if (event.key === 'Enter' || event.key === '=') {
+                event.preventDefault();
+                calculate();
+            } else if (event.key === 'Backspace') {
+                event.preventDefault();
+                deleteChar();
+            } else if (event.key === 'Escape') {
+                clearDisplay();
+            }
+        });
+    </script>
+</body>
+</html>
